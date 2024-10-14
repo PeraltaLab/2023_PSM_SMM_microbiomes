@@ -30,6 +30,9 @@ This work was supported by the National Science Foundation grant #1845845 and #2
 
 ## Contributors
 [Dr. Ariane Peralta](mailto:peraltaa@ecu.edu) [(website)](http://www.peraltalab.com): Associate Professor, Department of Biology, East Carolina University
-[Kai A. Davis](mailto:kaidavis34@gmail.com) [(website)](linkedin.com/in/kaiadavis): Undergraduate Researcher, Research Technician, Department of Biology, East Carolina University
+
+[Kai A. Davis](mailto:kaidavis34@gmail.com) [(website)](linkedin.com/in/kaiadavis): Research Technician, Undergraduate Researcher, Department of Biology, East Carolina University
+
 [Dr. Rachel Gittman](mailto:GITTMANR17@ECU.EDU) [(website)](https://gittmanlab.weebly.com/): Associate Professor, Department of Biology, East Carolina University
+
 [Mary-Margaret McKinney](mailto:mckinneymar22@students.ecu.edu) [(website)](https://www.linkedin.com/in/marymargaretmckinney/): Integrated Coastal Sciences PhD Program, Integrated Coastal Programs, East Carolina University
