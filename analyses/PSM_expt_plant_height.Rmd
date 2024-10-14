@@ -1,0 +1,145 @@
+---
+title: Plant-salt-microbe Spartina experiment
+author: "Kai Davis, Mary-Margaret McKinney, Rachel K. Gittman, Ariane L. Peralta"
+date: "Last updated on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+  fig_caption: yes
+  pdf_document: null
+header-includes:
+- \usepackage{array}
+- \usepackage{graphics}
+- \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls()) #clears history
+setwd("~/GitHub/2023_PSM_SMM_microbiomes/analyses") #sets working directory
+
+require("ggplot2")
+require("dplyr")
+
+file_path <- ("../data/PSM_height.csv") 
+PSM <- read.csv(file_path, row.names=1)
+dim(PSM) # 240   8
+str(PSM)
+
+PSM$Microbe_TRT <- as.factor(PSM$Microbe_TRT)
+PSM$Water_TRT <- as.factor(PSM$Water_TRT)
+#PSM$Date <- as.Date(PSM$Date, format = "%m-%dd-%YY")
+PSM$Date2 <- as.factor(PSM$Date2)
+str(PSM)
+PSM_without_na <- na.omit(PSM)
+dim(PSM_without_na) #216   8
+require("lme4")
+require("emmeans")
+height.lm <- lm(Height_mm ~ Microbe_TRT*Water_TRT*Date, data = PSM_without_na)
+summary(height.lm)
+anova(height.lm)
+emmeans(height.lm, pairwise ~ Microbe_TRT*Water_TRT)
+```
+
+```{r plot height, echo=FALSE}
+micro.labs <- c("No Addition", "Autoclaved Inocula", "Added Inocula") #for facet labels
+names(micro.labs) <- c("CONTROL", "Microbe_neg", "Microbe_pos")
+
+p <- ggplot(PSM_without_na, aes(x=factor(Date2, 
+                                         levels = c("23-Jun", "8-Jul", "22-Jul", "2-Aug")),
+                                y=Height_mm, color=Water_TRT))+ 
+  geom_boxplot() +
+  geom_point(aes(color=Water_TRT), size=1, position = position_jitterdodge())+ 
+  scale_color_manual(name="Treatment", 
+                     values=c("#004AAD", "#FFBD59")) 
+
+#p1=p+geom_smooth(method="lm")+facet_wrap(~Microbe_TRT)+facet_grid(~factor(Microbe_TRT, levels=c('+Microbes', '-Microbes', 'NO Microbes')))
+  
+p1=p+facet_wrap(~Microbe_TRT)+facet_grid(. ~Microbe_TRT, labeller = labeller(Microbe_TRT=micro.labs))
+
+height<-p1 + theme_bw() + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
+          =element_line(colour = "black")) + 
+    theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(vjust=0.65, hjust=0.5, 
+          size=14), panel.border = element_rect(colour = "black",linewidth=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Date", y = "Plant Height (mm)") + 
+    theme(strip.text.x = element_text(size=12, face="bold"), strip.text.y =   
+          element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
+          fill="white", linewidth=1)) + theme(axis.text.x = element_text(vjust = 1, hjust = 1, angle = 30))
+height
+ggsave("../figures/PSM_height.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=900, limitsize=TRUE)
+```
+
+```{r plot biomass, echo=FALSE}
+file_path <- ("../data/PSM_biomass.csv") 
+biomass <- read.csv(file_path, row.names=1)
+dim(biomass) # 60 7
+str(biomass)
+#deleted data where aboveground biomass was less than 1g b/c these individuals were new growth after original stem died
+biomass$Microbe_TRT <- as.factor(biomass$Microbe_TRT)
+biomass$Water_TRT <- as.factor(biomass$Water_TRT)
+str(biomass)
+biomass_without_na <- na.omit(biomass)
+dim(biomass_without_na) #52 5
+
+require("lme4")
+require("emmeans")
+AGbiomass.lm <- lm(Aboveground_g ~ Microbe_TRT*Water_TRT, data = biomass_without_na)
+summary(AGbiomass.lm)
+anova(AGbiomass.lm)
+emmeans(AGbiomass.lm, pairwise ~ Microbe_TRT*Water_TRT)
+
+micro.labs <- c("No Addition", "Autoclaved Inocula", "Added Inocula") #for facet labels
+names(micro.labs) <- c("CONTROL", "Microbe_neg", "Microbe_pos")
+
+p <- ggplot(biomass_without_na, aes(x=Water_TRT,y=Aboveground_g, color=Water_TRT)) + 
+  geom_boxplot() +
+  geom_point(aes(color=Water_TRT), size=2, position = position_jitterdodge())+ 
+  scale_color_manual(name="Treatment", 
+                     values=c("#004AAD", "#FFBD59")) 
+
+p1=p+facet_wrap(~Microbe_TRT)+facet_grid(. ~Microbe_TRT, labeller = labeller(Microbe_TRT=micro.labs))
+
+AGbiomass<-p1 + theme_bw() + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
+          =element_line(colour = "black")) + 
+    theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(vjust=1, hjust=1, 
+          size=14), panel.border = element_rect(colour = "black", linewidth=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Treatment", y = "Aboveground biomass (g)") + 
+    theme(strip.text.x = element_text(size=12, face="bold"), strip.text.y =   
+          element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
+          fill="white", linewidth=1)) + theme(axis.text.x = element_text(vjust = 1, hjust = 0.5, angle = ))
+AGbiomass
+
+ggsave("../figures/PSM_AGbiomass.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=900, limitsize=TRUE)
+
+
+BGbiomass.lm <- lm(Belowground_g ~ Microbe_TRT*Water_TRT, data = biomass_without_na)
+summary(BGbiomass.lm)
+anova(BGbiomass.lm)
+emmeans(BGbiomass.lm, pairwise ~ Microbe_TRT*Water_TRT)
+
+p <- ggplot(biomass_without_na, aes(x=Water_TRT,y=Belowground_g, color=Water_TRT)) + 
+  geom_boxplot() +
+  geom_point(aes(color=Water_TRT), size=2, position = position_jitterdodge())+ 
+  scale_color_manual(name="Treatment", 
+                     values=c("#004AAD", "#FFBD59")) 
+
+p1=p+facet_wrap(~Microbe_TRT)+facet_grid(. ~Microbe_TRT, labeller = labeller(Microbe_TRT=micro.labs))
+
+BGbiomass<-p1 + theme_bw() + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
+          =element_line(colour = "black")) + 
+    theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(vjust=1, hjust=1, 
+          size=14), panel.border = element_rect(colour = "black",linewidth=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Treatment", y = "Belowground biomass (g)") + 
+    theme(strip.text.x = element_text(size=12, face="bold"), strip.text.y =   
+          element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
+          fill="white", linewidth=1)) + theme(axis.text.x = element_text(vjust = 1, hjust = 0.5, angle = ))
+BGbiomass
+
+ggsave("../figures/PSM_BGbiomass.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=900, limitsize=TRUE)
+```

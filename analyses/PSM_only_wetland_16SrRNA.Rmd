@@ -1,0 +1,442 @@
+---
+title: "Salinity and microbial inocula effects on marsh cordgrass productivity"
+author: "Kai Davis, Mary-Margaret McKinney, Rachel K. Gittman, Ariane L. Peralta"
+date: "Last updated on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+  fig_caption: yes
+  pdf_document: null
+header-includes:
+- \usepackage{array}
+- \usepackage{graphics}
+- \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls()) #clears history
+
+# Set working directory:
+setwd("~/GitHub/2023_PSM_SMM_microbiomes/analyses")
+
+# Standard error (se) and confidence interval (ci):
+se <- function(x, ...){sd(x, na.rm = TRUE)/sqrt(length(na.omit(x)))}
+ci <- function(x, ...){1.96 * sd(x,na.rm = TRUE)}
+
+#if (!require("BiocManager", quietly = TRUE))
+    #install.packages("BiocManager")
+
+#BiocManager::install("phyloseq")
+
+# Code dependencies:
+source("../bin/DiversityFunctions.R")
+source("../bin/MothurTools.R")
+require("vegan"); require("reshape"); require("ggplot2"): require("tidyr"); require("dplyr"); require("dbstats"); require("reshape2"); require("ggpubr"); require("glue"); require("tidyverse"); require("labdsv");require("phyloseq")
+```
+
+# Load files
+*READ IN DESIGN FILE*
+```{r Import Files - design, include=FALSE}
+file_path <- ("../data/PSM_SMM_design.csv")
+design <- read.csv(file_path, row.names=1)
+dim(design) #117  11
+str(design)
+
+#Convert chr to factors 
+design$Study <- as.factor(design$Study)
+design$Microbe_TRT <- as.factor(design$Microbe_TRT)
+design$Water_TRT <- as.factor(design$Water_TRT)
+design$Date2 <- as.factor(design$Date2)
+design$TRT_row <- as.factor(design$TRT_row)
+design$Source <- as.factor(design$Source) # coded as categorical for bulk vs rhiz
+str(design)
+```
+
+#BACTERIA
+*READ IN BACTERIAL SEQUENCING FILES*
+```{r Import Files - Bacteria, include=FALSE}
+#READ IN OTU FILE
+
+otu_file <-("../data/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.shared")
+otu <- read.otu(otu_file)
+
+#READ IN TAXONOMY FILE
+
+tax_file <- ("../data/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.0.03.cons.taxonomy")
+tax <- import_mothur(mothur_constaxonomy_file =  tax_file)
+colnames(tax)=c("Domain","Phylum","Class", "Order","Family","Genus")
+tax_df <- as.data.frame(tax)
+
+otu.tax <- read.tax(taxonomy = "../data/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.0.03.cons.taxonomy",
+                   format = "rdp", tax.levels = 6, col.tax = 3)
+tax_df <- as.data.frame(otu.tax)
+```
+
+*REMOVING SINGLETONS* 
+```{r remove singletons, include=FALSE}
+dim(otu) #117 71805
+
+# OTU table - remove otus w/ < 2 occurrences across all sites
+otu.2 <- otu[, which(colSums(otu) > 2)]
+dim(otu.2) #117 38970
+
+# OTU table - remove otus w/ < 10 occurrences across all sites
+otu.10 <- otu[, which(colSums(otu) > 10)]
+dim(otu.10) #117 20446
+``` 
+*TRANSFORM DATA*
+```{r transform data, include=FALSE}
+# Correct Sample IDs and Subset File
+#check number of seqs per sample
+#otu_sample <- rowSums(otu.2)
+otu_sample <- rowSums(otu.10)
+otu_sample
+
+# OTU table - removed low abundance samples
+otu_keep <- otu.10[which(rowSums(otu.10) >= 10000), ] #removed temporarily PSM_65 b/c it represents low reads from autoclaved field soil; SMM_08 failed PCR
+dim(otu_keep) #removed three samples 
+
+# OTU table - odd sites in bacterial composition data and remove in design file and remove positive control and remove all baseline samples
+odd.sites <- c("Mock_Pos","PSM_65", "SMM_08", "PSM_61", "PSM_62","PSM_63", "PSM_64", "PSM_66", "PSM_67", "PSM_68")
+
+otu_final <- otu_keep[setdiff(rownames(otu_keep), odd.sites), ]
+design_final <- design[setdiff(rownames(design), odd.sites), ]
+all.equal(rownames(design_final), rownames(otu_final))
+
+dim(design_final) #107  11
+design_PSM <- subset(design_final, Study == "PSM")
+dim(design_PSM) #54 11
+design_SMM <- subset(design_final, Study == "SMM")
+dim(design_SMM) #53 11
+
+otu_PSM <- otu_final[c(1:54),]
+dim(otu_PSM) #54 20446
+all.equal(rownames(design_PSM), rownames(otu_PSM))
+
+otu_SMM <- otu_final[c(55:107),]
+dim(otu_SMM) #53 20446
+all.equal(rownames(design_SMM), rownames(otu_SMM))
+
+#now that PSM and SMM are separated, we will apply removing rare OTUs that might have been missed
+otu_PSM.10 <- otu_PSM[, which(colSums(otu_PSM) > 10)]
+dim(otu_PSM.10) # 54 8331
+
+otu_SMM.10 <- otu_SMM[, which(colSums(otu_SMM) > 10)]
+dim(otu_SMM.10) # 53 14812
+
+#RELATIVE ABUNDANCE
+otu_rel_PSM <- otu_PSM.10
+for(i in 1:dim(otu_PSM.10)[1]){
+  otu_rel_PSM[i,] <- otu_PSM.10[i,]/sum(otu_PSM.10[i,])
+}
+
+otu_rel_SMM <- otu_SMM.10
+for(i in 1:dim(otu_SMM.10)[1]){
+  otu_rel_SMM[i,] <- otu_SMM.10[i,]/sum(otu_SMM.10[i,])
+}
+```
+
+*ADD DIVERSITY METRICS - PSM project*
+```{r Alpha diversity bacteria - PSM, include=FALSE}
+min(rowSums(otu_PSM.10)) #10941
+
+otus.r <- rrarefy(otu_PSM.10, 10941)
+
+# Fisher's Alpha
+fisher <- fisher.alpha(otus.r)
+
+# Species Richness
+richness <- rowSums((otu_PSM.10 >= 1))
+
+# Shannon Diversity
+shannon <- diversity(otus.r, "shannon")
+
+# Simpson's Evenness
+simp.even <- apply(otus.r, 1, simp_even)
+
+#Pielou’s evenness
+J <- shannon/log(specnumber(otus.r[,-c(1:1)]))
+
+diversity_PSM <- cbind(design_PSM,richness,shannon,simp.even,J)
+#write.csv(diversity,"../data/2014to2020.diversity.bact.raw.csv")
+
+str(diversity_PSM) 
+dim(diversity_PSM) #54 15
+```
+
+#Plot Shannon diversity - PSM
+```{r Plot - Shannon Diversity PSM - field, echo=TRUE}
+str(diversity_PSM)
+
+# Graphing Shannon diversity
+micro.labs <- c("No Addition", "Autoclaved Inocula", "Added Inocula") #for facet labels
+names(micro.labs) <- c("CONTROL", "Microbe_neg", "Microbe_pos")
+
+p <- ggplot(diversity_PSM, aes(x=Water_TRT,y=shannon, color=Water_TRT)) + 
+  geom_boxplot() +
+  geom_point(aes(color=Water_TRT), size=2, position = position_jitterdodge())+ 
+  scale_color_manual(name="Treatment", 
+                     values=c("#004AAD", "#FFBD59")) 
+
+p1=p+facet_wrap(~Microbe_TRT)+facet_grid(. ~Microbe_TRT, labeller = labeller(Microbe_TRT=micro.labs))
+
+shannon_PSM<-p1 + theme_bw() + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
+          =element_line(colour = "black")) + 
+    theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(vjust=1, hjust=1, 
+          size=14), panel.border = element_rect(colour = "black",linewidth=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Treatment", y = "Shannon Diversity Index (H')") + 
+    theme(strip.text.x = element_text(size=12, face="bold"), strip.text.y =   
+          element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
+          fill="white", linewidth=1)) + theme(axis.text.x = element_text(angle = , hjust = ))
+
+shannon_PSM
+ggsave("../figures/PSM.shannon.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+```
+
+#Plot Pielou's Evenness - PSM
+```{r Plot - evenness - PSM, echo=TRUE}
+# Graphing evenness
+
+p <- ggplot(diversity_PSM, aes(x=Water_TRT,y=J, color=Water_TRT)) + 
+  geom_boxplot() +
+  geom_point(aes(color=Water_TRT), size=2, position = position_jitterdodge())+ 
+  scale_color_manual(name="Treatment", 
+                     values=c("#004AAD", "#FFBD59")) 
+
+p1=p+facet_wrap(~Microbe_TRT)+facet_grid(. ~Microbe_TRT, labeller = labeller(Microbe_TRT=micro.labs))
+
+evenness <- p1 + theme_bw() + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
+          =element_line(colour = "black")) + 
+    theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border = element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Treatment", y = "Pielou's Evenness (J')") +
+    theme(strip.text.x = element_text(size=12, face="bold"), strip.text.y =   
+          element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
+          fill="white", linewidth=1)) + theme(axis.text.x = element_text(angle = , hjust = )) +
+    labs(color = "Treatment")
+evenness
+ggsave("../figures/PSM.evenness.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+```
+
+## PERMANOVA
+Permutational multivariate analysis of variance (PERMANOVA):
+```{r PERMANOVA-PSM}
+otu_design_PSM <- cbind(diversity_PSM,otu_rel_PSM)
+dim(otu_design_PSM) #54 8346
+dim(diversity_PSM) #54 15
+otu_design_PSM <- droplevels(otu_design_PSM)
+str(otu_design_PSM)
+
+adonis_PSM <- adonis2(formula=otu_design_PSM[,-c(1:15)]~Water_TRT*Microbe_TRT, 
+                     method = "bray", 
+                     data = otu_design_PSM, 
+                     perm=1000,
+                     by = "terms",
+                     set.seed=42)
+adonis_PSM
+```
+
+## PCoA
+```{r PCoA: PSM}
+# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+PSM_BC <- vegdist(otu_design_PSM[-c(1:15)], method="bray") #deleted last three samples which are baseline soils
+
+pcoa_PSM <- cmdscale(PSM_BC, k=2, eig=TRUE, add=TRUE) # changing k to 2 because we only want 2 dimensions anyway
+  # Now trying add = TRUE because of https://www.youtube.com/watch?v=G5Qckqq5Erw
+
+explainvar1b_PSM <- round(pcoa_PSM$eig[1] / sum(pcoa_PSM$eig), 3) * 100
+explainvar2b_PSM <- round(pcoa_PSM$eig[2] / sum(pcoa_PSM$eig), 3) * 100
+sum.eigb <- sum(explainvar1b_PSM, explainvar2b_PSM)
+
+explainvar1b_PSM # 21.5
+explainvar2b_PSM # 11.7
+
+otu_design_PSM <- otu_design_PSM[c(1:54),]
+pcoa.groups <- paste(otu_design_PSM$Water_TRT, otu_design_PSM$Microbe_TRT,sep = "_")
+pcoa.points <- data.frame(pcoa_PSM$points, group = pcoa.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
+pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
+pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
+pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
+
+#
+
+# Combine
+pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
+colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
+
+Microbe <- c("No Addition", "Autoclaved Inocula", "Added Inocula","No Addition", "Autoclaved Inocula", "Added Inocula")
+Water <- c("FRESH","FRESH","FRESH","SALT","SALT","SALT")
+
+pcoa.cent.dataframe.trts <- as.data.frame(pcoa.cent.dataframe)
+pcoa.cent.dataframe.trts$Microbe <- as.factor(Microbe)
+pcoa.cent.dataframe.trts$Water <- as.factor(Water)
+view(pcoa.cent.dataframe.trts)
+df1a <- pcoa.cent.dataframe.trts
+
+#Plot
+plot1a <- ggplot(df1a, aes(x=V1, y=V2, colour=Water, shape = Microbe)) + theme_bw() 
+plot1a + theme(panel.grid.major = element_blank(), 
+               panel.grid.minor = element_blank(), 
+               axis.line = element_line(colour = "black")) + 
+  theme(panel.background = element_blank()) + 
+  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") + 
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +
+  geom_point(aes(colour=Water), size=5, stroke = 1.25, show.legend = TRUE) +
+ scale_color_manual(name="Treatment", 
+                     values=c("#004AAD", "#FFBD59")) +
+  theme(axis.title = element_text(size=14), 
+        axis.text = element_text(size=14),
+        axis.text.x = element_text(size=14), 
+        panel.border = element_rect(colour = "black", linewidth = 1.25)) + 
+  theme(axis.ticks.length = unit(0.3, "cm")) + 
+ xlab("PCoA 1 (21.5%)") + ylab("PCoA 2 (11.7%)") +
+        labs(colour = "Water", shape = "Microbe") +
+    guides(colour = guide_legend(override.aes = list(pch=16, size = 4)),
+           shape = guide_legend(override.aes = list(size = 4))) +
+    ggtitle("Bacterial 16SrRNA Community Composition")
+
+ggsave("../figures/PSM.bact.ordination.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+```
+
+```{r PCoA - PSM indiv}
+#PSM_BC <- vegdist(otu_design_PSM[c(1:54),-c(1:15)], method="bray") #deleted last three samples which are baseline soils
+
+##pcoa_PSM <- cmdscale(PSM_BC, k=2, eig=TRUE, add=TRUE) # changing k to 2 because we only want 2 dimensions anyway
+  # Now trying add = TRUE because of https://www.youtube.com/watch?v=G5Qckqq5Erw
+
+#explainvar1b_PSM <- round(pcoa_PSM$eig[1] / sum(pcoa_PSM$eig), 3) * 100
+#explainvar2b_PSM <- round(pcoa_PSM$eig[2] / sum(pcoa_PSM$eig), 3) * 100
+#sum.eigb <- sum(explainvar1b_PSM, explainvar2b_PSM)
+
+#explainvar1b_PSM # 21.5
+#explainvar2b_PSM # 11.7
+
+pcoa_PSM.groups <- paste(otu_design_PSM$Water_TRT, otu_design_PSM$Microbe_TRT, sep = "_")
+pcoa_PSM.points <- data.frame(pcoa_PSM$points, group = pcoa_PSM.groups)
+
+pcoa.PSM.cent.dataframe.trts <- as.data.frame(pcoa_PSM.points)
+#"No Addition", "Autoclaved Inocula", "Added Inocula"
+Microbe <- c("Added Inocula","Added Inocula","Added Inocula","Added Inocula","Added Inocula","Added Inocula","Added Inocula","Added Inocula","Added Inocula","Added Inocula","Added Inocula","Added Inocula","Added Inocula","Added Inocula","Added Inocula","Added Inocula","Added Inocula","Added Inocula", "Autoclaved Inocula","Autoclaved Inocula","Autoclaved Inocula","Autoclaved Inocula","Autoclaved Inocula","Autoclaved Inocula","Autoclaved Inocula","Autoclaved Inocula","Autoclaved Inocula","Autoclaved Inocula","Autoclaved Inocula","Autoclaved Inocula","Autoclaved Inocula","Autoclaved Inocula","Autoclaved Inocula","Autoclaved Inocula","Autoclaved Inocula","No Addition","No Addition","No Addition","No Addition","No Addition","No Addition","No Addition","No Addition","No Addition","No Addition","No Addition","No Addition","No Addition","No Addition","No Addition","No Addition","No Addition","No Addition","No Addition")
+Water <- c("FRESH","FRESH","FRESH","FRESH","FRESH","FRESH","FRESH","FRESH","FRESH","SALT","SALT","SALT","SALT","SALT","SALT","SALT","SALT","SALT","FRESH","FRESH","FRESH","FRESH","FRESH","FRESH","FRESH","FRESH","FRESH","SALT","SALT","SALT","SALT","SALT","SALT","SALT","SALT","FRESH","FRESH","FRESH","FRESH","FRESH","FRESH","FRESH","FRESH","FRESH","FRESH","SALT","SALT","SALT","SALT","SALT","SALT","SALT","SALT","SALT")
+
+pcoa_PSM_indiv <- cbind(pcoa.PSM.cent.dataframe.trts,Water, Microbe)
+str(pcoa_PSM_indiv)
+pcoa_PSM_indiv$Water <- as.factor(pcoa_PSM_indiv$Water)
+pcoa_PSM_indiv$Microbe <- as.factor(pcoa_PSM_indiv$Microbe)
+dim(pcoa_PSM_indiv)
+df1a <- pcoa_PSM_indiv
+str(df1a)
+
+#Plot using ggplot2 - individual
+
+bact_PSM_indiv<- ggplot(df1a, aes(x=X1, y=X2, shape=Microbe, colour=Water)) +   
+  geom_point(aes(shape = Microbe, colour = Water), stroke = 4) +
+#removes gridlines from plot
+theme_bw() + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+axis.line = element_line(colour = "black")) +
+theme(axis.title = element_text(size=12),# face="bold"),
+axis.text.x = element_text(size=14, color="black"),  axis.text.y = element_text(size=14, color="black"),
+panel.border = element_rect(colour = "black", linewidth=1.25)) +
+ scale_color_manual(name="Treatment", 
+                     values=c("#004AAD", "#FFBD59")) +
+  #Set plot title text size
+theme(plot.title=element_text(size=12)) +
+#Set legend text size
+theme(legend.text=element_text(size=10, face="bold"), legend.title = element_text(size=10, face="bold"))+
+#Sets size of tick marks on axis
+theme(axis.ticks.length=unit(0.3,"cm")) +
+#Sets labels for plot title, axis titles, and legend headings
+ xlab("PCoA 1 (21.5%)") + ylab("PCoA 2 (11.7%)") +
+labs(shape = "Microbe") +
+labs(colour="Water") + 
+guides(color = guide_legend(override.aes = list(size = 1))) 
+#ggtitle("Hammocks Beach Bacterial 16SrRNA Community Composition")
+
+bact_PSM_indiv
+ggsave("../figures/PSM.bact.indiv.ordination.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+```
+
+# Bacterial community indicator species analysis -
+```{r PSM Bacteria Indicator Species i, eval=FALSE, include=FALSE}
+install.packages("indicspecies")
+require("indicspecies")
+#otu_design_PSM <- otu_design_PSM[c(1:54),]
+
+# Water_TRT
+levels(otu_design_PSM$Water_TRT)
+group <- otu_design_PSM$Water_TRT
+design.type <- group
+dataREL.t <- otu_rel_PSM[, colSums(otu_rel_PSM) > 0.05]
+bac.ind <- indval(dataREL.t, design.type)
+levels(design.type) #"FRESH" "SALT" 
+summary(bac.ind)
+
+inds <- which(bac.ind$pval <= 0.05)
+bac.indicators <- as.data.frame(matrix(NA, nrow = length(inds), ncol = 4))
+colnames(bac.indicators) <- c("OTU", "Cluster", "IndVal", "Prob")
+
+bac.indicators$OTU <- names(inds)
+bac.indicators$Cluster <- bac.ind$maxcls[inds]
+bac.indicators$IndVal <- bac.ind$indcls[inds]
+bac.indicators$Prob <- bac.ind$pval[inds]
+
+ind.tax <- tax_df[which(as.character(tax_df$OTU) %in% bac.indicators$OTU), ]
+ind.tax <- ind.tax[match(ind.tax$OTU, bac.indicators$OTU), ]
+
+indicator.bac <- cbind(bac.indicators, ind.tax[, -c(1)])
+
+indicator.bac <- indicator.bac[order(as.numeric(indicator.bac$Cluster)), ]
+
+table(indicator.bac$Cluster)
+table(indicator.bac$Phylum)
+table(indicator.bac$Cluster)
+
+# Export Bacteria Indicator Table
+write.table(indicator.bac, "../data/BacterialIndicators_Water_TRT_PSM.txt",
+            sep="\t", row.names = F, quote = F)
+
+# Microbe_TRT
+levels(otu_design_PSM$Microbe_TRT)
+group <- otu_design_PSM$Microbe_TRT
+design.type <- group
+dataREL.t <- otu_rel_PSM[, colSums(otu_rel_PSM) > 0.05]
+bac.ind <- indval(dataREL.t, design.type)
+levels(design.type) #"CONTROL"     "Microbe_neg" "Microbe_pos"
+summary(bac.ind)
+
+inds <- which(bac.ind$pval <= 0.1)
+bac.indicators <- as.data.frame(matrix(NA, nrow = length(inds), ncol = 4))
+colnames(bac.indicators) <- c("OTU", "Cluster", "IndVal", "Prob")
+
+bac.indicators$OTU <- names(inds)
+bac.indicators$Cluster <- bac.ind$maxcls[inds]
+bac.indicators$IndVal <- bac.ind$indcls[inds]
+bac.indicators$Prob <- bac.ind$pval[inds]
+
+ind.tax <- tax_df[which(as.character(tax_df$OTU) %in% bac.indicators$OTU), ]
+ind.tax <- ind.tax[match(ind.tax$OTU, bac.indicators$OTU), ]
+
+indicator.bac <- cbind(bac.indicators, ind.tax[, -c(1)])
+
+indicator.bac <- indicator.bac[order(as.numeric(indicator.bac$Cluster)), ]
+
+table(indicator.bac$Cluster)
+table(indicator.bac$Phylum)
+table(indicator.bac$Cluster)
+
+# Export Bacteria Indicator Table
+write.table(indicator.bac, "../data/BacterialIndicators_Microbe_TRT_PSM.txt",
+            sep="\t", row.names = F, quote = F)
+```
+
+

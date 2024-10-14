@@ -1,0 +1,262 @@
+#lines that successfully run in mothur
+#mothur version xxx
+
+#make.contigs(file=~/old_machine/peraltalab/2023_PSM_SMM/PSM_SMM.files, processors=20, inputdir=~/old_machine/peraltalab/2023_PSM_SMM/raw/, outputdir=~/old_machine/peraltalab/2023_PSM_SMM/analysis/)
+
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.fasta
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.scrap.contigs.fasta
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.contigs_report
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.contigs.count_table
+
+#summary.seqs(fasta=/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.fasta, inputdir=~/old_machine/peraltalab/2023_PSM_SMM/analysis/)
+Using 20 processors.
+ad
+                Start   End     NBases  Ambigs  Polymer NumSeqs
+Minimum:        1       246     246     0       3       1
+2.5%-tile:      1       253     253     0       4       173095
+25%-tile:       1       253     253     0       4       1730945
+Median:         1       253     253     0       4       3461890
+75%-tile:       1       253     253     0       5       5192835
+97.5%-tile:     1       254     254     4       6       6750685
+Maximum:        1       502     502     108     251     6923779
+Mean:   1       254     254     0       4
+# of Seqs:      6923779
+
+It took 39 secs to summarize 6923779 sequences.
+
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.summary
+
+#screen.seqs(fasta=PSM_SMM.trim.contigs.fasta, count=PSM_SMM.contigs.count_table, maxambig=0, maxlength=275, maxhomop=8)
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.fasta
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.bad.accnos
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.contigs.good.count_table
+
+#summary.seqs(fasta=PSM_SMM.trim.contigs.good.fasta)
+                Start   End     NBases  Ambigs  Polymer NumSeqs
+Minimum:        1       249     249     0       3       1
+2.5%-tile:      1       253     253     0       4       155930
+25%-tile:       1       253     253     0       4       1559295
+Median:         1       253     253     0       4       3118590
+75%-tile:       1       253     253     0       5       4677885
+97.5%-tile:     1       254     254     0       6       6081250
+Maximum:        1       275     275     0       8       6237179
+Mean:   1       253     253     0       4
+# of Seqs:      6237179
+
+It took 36 secs to summarize 6237179 sequences.
+
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.summary
+
+#unique.seqs(fasta=PSM_SMM.trim.contigs.good.fasta, count=PSM_SMM.contigs.count_table)
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.fasta
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.count_table
+
+#summary.seqs(count=PSM_SMM.trim.contigs.good.count_table)
+                Start   End     NBases  Ambigs  Polymer NumSeqs
+Minimum:        1       249     249     0       3       1
+2.5%-tile:      1       253     253     0       4       155930
+25%-tile:       1       253     253     0       4       1559295
+Median:         1       253     253     0       4       3118590
+75%-tile:       1       253     253     0       5       4677885
+97.5%-tile:     1       254     254     0       6       6081250
+Maximum:        1       275     275     0       8       6237179
+Mean:   1       253     253     0       4
+# of unique seqs:       858905
+total # of seqs:        6237179
+
+It took 18 secs to summarize 6237179 sequences.
+
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.summary
+
+#align.seqs(fasta=PSM_SMM.trim.contigs.good.unique.fasta, reference=~/SILVA_dbs/silva132.v4.fasta)
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.align
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.align_report
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.flip.accnos
+
+#summary.seqs(fasta=PSM_SMM.trim.contigs.good.unique.align, count=PSM_SMM.trim.contigs.good.count_table)
+                Start   End     NBases  Ambigs  Polymer NumSeqs
+Minimum:        0       0       0       0       1       1
+2.5%-tile:      1968    11550   253     0       4       155930
+25%-tile:       1968    11550   253     0       4       1559295
+Median:         1968    11550   253     0       4       3118590
+75%-tile:       1968    11550   253     0       5       4677885
+97.5%-tile:     1968    11550   254     0       6       6081250
+Maximum:        13425   13425   275     0       8       6237179
+Mean:   1970    11548   252     0       4
+# of unique seqs:       858905
+total # of seqs:        6237179
+
+It took 109 secs to summarize 6237179 sequences.
+
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.summary
+
+
+#screen.seqs(fasta=PSM_SMM.trim.contigs.good.unique.align, count=PSM_SMM.trim.contigs.good.count_table, summary=PSM_SMM.trim.contigs.good.unique.summary, start=1968, end=11550, maxhomop=8)
+
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.summary
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.align
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.bad.accnos
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.good.count_table
+
+#summary.seqs(fasta=current, count=current)
+
+                Start   End     NBases  Ambigs  Polymer NumSeqs
+Minimum:        1       11550   241     0       3       1
+2.5%-tile:      1968    11550   253     0       4       155680
+25%-tile:       1968    11550   253     0       4       1556793
+Median:         1968    11550   253     0       4       3113586
+75%-tile:       1968    11550   253     0       5       4670378
+97.5%-tile:     1968    11550   254     0       6       6071491
+Maximum:        1968    13425   275     0       8       6227170
+Mean:   1967    11550   253     0       4
+# of unique seqs:       853672
+total # of seqs:        6227170
+
+It took 109 secs to summarize 6227170 sequences.
+
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.summary
+
+#filter.seqs(fasta=PSM_SMM.trim.contigs.good.unique.good.align, vertical=T, trump=.)
+Length of filtered alignment: 734
+Number of columns removed: 12691
+Length of the original alignment: 13425
+Number of sequences used to construct filter: 853672
+
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.filter
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.fasta
+
+
+#unique.seqs(fasta=PSM_SMM.trim.contigs.good.unique.good.filter.fasta, count=PSM_SMM.trim.contigs.good.good.count_table)
+Output File Names: 
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.fasta
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.count_table
+
+
+#pre.cluster(fasta=PSM_SMM.trim.contigs.good.unique.good.filter.unique.fasta, count=PSM_SMM.trim.contigs.good.unique.good.filter.count_table, diffs=2)
+
+
+#chimera.vsearch(fasta=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.fasta, count=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.count_table, dereplicate=t)
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.count_table
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.chimeras
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.accnos
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.fasta
+
+#summary.seqs(fasta=current, count=current)
+                Start   End     NBases  Ambigs  Polymer NumSeqs
+Minimum:        1       733     218     0       3       1
+2.5%-tile:      1       734     253     0       4       154132
+25%-tile:       1       734     253     0       4       1541311
+Median:         1       734     253     0       4       3082621
+75%-tile:       1       734     253     0       5       4623931
+97.5%-tile:     1       734     254     0       6       6011110
+Maximum:        3       734     275     0       8       6165241
+Mean:   1       733     253     0       4
+# of unique seqs:       334611
+total # of seqs:        6165241
+
+It took 9 secs to summarize 6165241 sequences.
+
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.summary
+
+
+#classify.seqs(fasta=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.fasta, count=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.count_table, reference=~/SILVA_dbs/trainset16_022016.pds/trainset16_022016.pds.fasta, taxonomy=~/SILVA_dbs/trainset16_022016.pds/trainset16_022016.pds.tax, cutoff=80)
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pds.wang.taxonomy
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pds.wang.tax.summary
+
+
+#remove.lineage(fasta=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.fasta, count=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.count_table, taxonomy=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pds.wang.taxonomy, taxon=Chloroplast-Mitochondria-unknown-Archaea-Eukaryota)
+/******************************************/
+Running command: remove.seqs(accnos=/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pds.wang.accnos, count=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.count_table, fasta=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.fasta)
+Removed 13313 sequences from PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.fasta.
+Removed 197489 sequences from PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.count_table.
+
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.fasta
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.count_table
+
+/******************************************/
+
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pds.wang.pick.taxonomy
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pds.wang.accnos
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.count_table
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.fasta
+
+#summary.tax(taxonomy=current, count=current)
+Output File Names: 
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pds.wang.pick.tax.summary
+
+
+#dist.seqs(fasta=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.fasta, cutoff=0.03)
+It took 17898 secs to find distances for 321298 sequences. 8140367 distances below cutoff 0.03.
+
+
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.dist
+
+
+#cluster(column=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.dist, count=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.count_table)
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.list
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.steps
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.sensspec
+
+
+#cluster.split(fasta=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.fasta, count=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.count_table, taxonomy=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pds.wang.pick.taxonomy, taxlevel=4, cutoff=0.03)
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.dist
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.list
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.sensspec
+
+#make.shared(list=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.list, count=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.count_table, label=0.03)
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.shared
+
+
+#classify.otu(list=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.list, count=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.count_table, taxonomy=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pds.wang.pick.taxonomy, label=0.03)
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.0.03.cons.taxonomy
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.0.03.cons.tax.summary
+
+
+#make.shared(count=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.count_table)
+Output File Names:
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.asv.list
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.asv.shared
+
+#classify.otu(list=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.asv.list, count=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.count_table, taxonomy=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pds.wang.pick.taxonomy, label=ASV)
+Output File Names: 
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.asv.ASV.cons.taxonomy
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.asv.ASV.cons.tax.summary
+
+#rarefaction.single(shared=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.shared)
+Output File Names: 
+/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.groups.rarefaction
+
+
+
+##SAVE files
+
+#+PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.asv.ASV.cons.taxonomy
+#+PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.asv.ASV.cons.tax.summary
+#+PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.asv.list
+#+PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.asv.shared
+#+PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.0.03.cons.taxonomy
+#+PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.0.03.cons.tax.summary
+#+PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.list
+#+PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.shared
+#+PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.opti_mcc.groups.rarefaction
