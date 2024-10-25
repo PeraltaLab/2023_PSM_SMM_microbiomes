@@ -2,11 +2,11 @@
 
 This repository contains open-source code, data, & text files.
 
-Raw amplicon sequence files can be found at NCBI SRA [BioProject TBD].
+Raw amplicon sequence files can be found at NCBI SRA [(BioProject ID PRJNA1172654)](https://www.ncbi.nlm.nih.gov/bioproject/1172654!
 
 ## Manuscript pre-print
 
-For information regarding the project, please visit: 
+For information regarding the project, please visit: Davis, K. A., McKinney, M. M. S., Gittman, R. K., & Peralta, A. L. (2024). Evaluating Plant-Microbe Associations in Response to Environmental Stressors to Enhance Salt Marsh Restoration. bioRxiv, 2024-10. [(https://doi.org/10.1101/2024.10.14.618360)](https://doi.org/10.1101/2024.10.14.618360)
 
 ## We address the following aim:
 
