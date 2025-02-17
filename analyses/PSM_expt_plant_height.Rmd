@@ -1,5 +1,5 @@
 ---
-title: Plant-salt-microbe Spartina experiment
+title: "Evaluating Plant-Microbe Associations in Response to Environmental Stressors to Enhance Salt Marsh Restoration (plant height and biomass)"
 author: "Kai Davis, Mary-Margaret McKinney, Rachel K. Gittman, Ariane L. Peralta"
 date: "Last updated on `r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -38,10 +38,11 @@ require("emmeans")
 height.lm <- lm(Height_mm ~ Microbe_TRT*Water_TRT*Date, data = PSM_without_na)
 summary(height.lm)
 anova(height.lm)
+#pairwise comparisons of stem height between individual treatments
 emmeans(height.lm, pairwise ~ Microbe_TRT*Water_TRT)
 ```
 
-```{r plot height, echo=FALSE}
+```{r plot height, echo=TRUE}
 micro.labs <- c("No Addition", "Autoclaved Inocula", "Added Inocula") #for facet labels
 names(micro.labs) <- c("CONTROL", "Microbe_neg", "Microbe_pos")
 
@@ -71,7 +72,7 @@ height
 ggsave("../figures/PSM_height.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=900, limitsize=TRUE)
 ```
 
-```{r plot biomass, echo=FALSE}
+```{r plot biomass, echo=TRUE}
 file_path <- ("../data/PSM_biomass.csv") 
 biomass <- read.csv(file_path, row.names=1)
 dim(biomass) # 60 7
@@ -88,6 +89,7 @@ require("emmeans")
 AGbiomass.lm <- lm(Aboveground_g ~ Microbe_TRT*Water_TRT, data = biomass_without_na)
 summary(AGbiomass.lm)
 anova(AGbiomass.lm)
+#pairwise comparisons of aboveground biomass between individual treatments
 emmeans(AGbiomass.lm, pairwise ~ Microbe_TRT*Water_TRT)
 
 micro.labs <- c("No Addition", "Autoclaved Inocula", "Added Inocula") #for facet labels
@@ -119,6 +121,7 @@ ggsave("../figures/PSM_AGbiomass.png", plot=last_plot(), device=NULL, path=NULL,
 BGbiomass.lm <- lm(Belowground_g ~ Microbe_TRT*Water_TRT, data = biomass_without_na)
 summary(BGbiomass.lm)
 anova(BGbiomass.lm)
+#pairwise comparisons of belowground biomass between individual treatments
 emmeans(BGbiomass.lm, pairwise ~ Microbe_TRT*Water_TRT)
 
 p <- ggplot(biomass_without_na, aes(x=Water_TRT,y=Belowground_g, color=Water_TRT)) + 
