@@ -1,5 +1,5 @@
 #lines that successfully run in mothur
-#mothur version xxx
+#mothur version v1.48.3
 
 #make.contigs(file=~/old_machine/peraltalab/2023_PSM_SMM/PSM_SMM.files, processors=20, inputdir=~/old_machine/peraltalab/2023_PSM_SMM/raw/, outputdir=~/old_machine/peraltalab/2023_PSM_SMM/analysis/)
 
@@ -174,7 +174,7 @@ Output File Names:
 
 #classify.seqs(fasta=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.fasta, count=PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.count_table, reference=~/SILVA_dbs/trainset16_022016.pds/trainset16_022016.pds.fasta, taxonomy=~/SILVA_dbs/trainset16_022016.pds/trainset16_022016.pds.tax, cutoff=80)
 Output File Names:
-/home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pds.wang.taxonomy
+/home/peraltalab//Users/peraltaa/Desktop/2023_PSM_SMM_rev_NOTES.txt/old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pds.wang.taxonomy
 /home/peraltalab//old_machine/peraltalab/2023_PSM_SMM/analysis/PSM_SMM.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pds.wang.tax.summary
 
 
