@@ -1,0 +1,255 @@
+---
+title: "Evaluating Plant-Microbe Associations in Response to Environmental Stressors to Enhance Salt Marsh Restoration (plant height and biomass)"
+author: "Kai Davis, Mary-Margaret McKinney, Rachel K. Gittman, Ariane L. Peralta"
+date: "Last updated on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+  fig_caption: yes
+  pdf_document: null
+header-includes:
+- \usepackage{array}
+- \usepackage{graphics}
+- \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls()) #clears history
+setwd("~/GitHub/2023_PSM_SMM_microbiomes/analyses") #sets working directory
+
+require("ggplot2")
+require("dplyr")
+require("rstatix")
+require("car")
+require("FSA")   # for dunnTest
+```
+
+```{r plot AG biomass, echo=TRUE}
+file_path <- ("../data/PSM_biomass_height_updated.csv") 
+biomass <- read.csv(file_path, row.names=1)
+dim(biomass) # 60 11
+str(biomass)
+
+#deleted data where aboveground biomass was less than 1g b/c these individuals were new growth after original stem died
+biomass$Microbe_TRT <- as.factor(biomass$Microbe_TRT)
+biomass$Water_TRT <- as.factor(biomass$Water_TRT)
+biomass$Height_mm_st <- as.numeric(biomass$Height_mm_st)
+biomass$Height_mm_end <- as.numeric(biomass$Height_mm_end)
+biomass$Change_height_mm <- as.numeric(biomass$Change_height_mm)
+str(biomass)
+
+# ABOVEGROUND BIOMASS
+
+qqPlot(biomass$Aboveground_g)
+shapiro.test(biomass$Aboveground_g)
+# W = 0.86925, p-value = 7.354e-05 interpretation: biomass is not normally distributed
+
+#Run non-parametric Kruskal-Wallis for Aboveground biomass - updated
+group <- interaction(biomass$Microbe_TRT, biomass$Water_TRT)
+summary(group)
+
+kruskal.test(Aboveground_g ~ group, data = biomass)
+# Kruskal-Wallis chi-squared = 11.239, df = 5, p-value = 0.04683
+
+dunn_AG <- dunnTest(Aboveground_g ~ group,
+         data = biomass,
+         method = "holm")
+
+# Extract tidy dataframe
+dunn_AG_df <- dunn_AG$res
+
+#write.csv(dunn_AG_df,"../data/dunn_AG.csv")
+
+micro.labs <- c("No Addition", "Autoclaved Inocula", "Added Inocula") #for facet labels
+names(micro.labs) <- c("CONTROL", "Microbe_neg", "Microbe_pos")
+
+p <- ggplot(biomass, aes(x=Water_TRT,y=Aboveground_g, color=Water_TRT)) + 
+  geom_boxplot() +
+  geom_point(aes(color=Water_TRT), size=2, position = position_jitterdodge())+ 
+  scale_color_manual(name="Treatment", 
+                     values=c("#004AAD", "#FFBD59")) 
+
+p1=p+facet_wrap(~Microbe_TRT)+facet_grid(. ~Microbe_TRT, labeller = labeller(Microbe_TRT=micro.labs))
+
+AGbiomass<-p1 + theme_bw() + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
+          =element_line(colour = "black")) + 
+    theme(axis.title=element_text(vjust=1,size=12,face="bold"),
+          axis.text=element_text(size=12), axis.text.x = element_text(vjust=1, hjust=1, 
+          size=12), panel.border = element_rect(colour = "black", linewidth=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Treatment", y = "Aboveground Biomass (g)") + 
+    theme(strip.text.x = element_text(size=12, face="bold"), strip.text.y =   
+          element_text(size=12, face="bold"), strip.background = element_rect(colour="black",
+          fill="white", linewidth=1)) + theme(axis.text.x = element_text(vjust = 1, hjust = 0.5, angle = ))
+AGbiomass
+
+ggsave("../figures/PSM_AGbiomass.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=900, limitsize=TRUE)
+```
+
+```{r plot BG biomass, echo=TRUE}
+# BELOWGROUND BIOMASS
+
+qqPlot(biomass$Belowground_g) # non-linear
+
+shapiro.test(biomass$Belowground) # W = 0.77437, p-value = 5.481e-07 interpretation: biomass is not normally distributed
+
+group <- interaction(biomass$Microbe_TRT, biomass$Water_TRT)
+summary(group)
+
+kruskal.test(Belowground_g ~ group, data = biomass)
+# Kruskal-Wallis chi-squared = 4.6133, df = 5, p-value = 0.4649 NS
+
+p <- ggplot(biomass, aes(x=Water_TRT,y=Belowground_g, color=Water_TRT)) + 
+  geom_boxplot() +
+  geom_point(aes(color=Water_TRT), size=2, position = position_jitterdodge())+ 
+  scale_color_manual(name="Treatment", 
+                     values=c("#004AAD", "#FFBD59")) 
+
+p1=p+facet_wrap(~Microbe_TRT)+facet_grid(. ~Microbe_TRT, labeller = labeller(Microbe_TRT=micro.labs))
+
+BGbiomass<-p1 + theme_bw() + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
+          =element_line(colour = "black")) + 
+    theme(axis.title=element_text(vjust=1,size=12,face="bold"),
+          axis.text=element_text(size=12), axis.text.x = element_text(vjust=1, hjust=1, 
+          size=12), panel.border = element_rect(colour = "black",linewidth=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Treatment", y = "Belowground Biomass (g)") + 
+    theme(strip.text.x = element_text(size=12, face="bold"), strip.text.y =   
+          element_text(size=12, face="bold"), strip.background = element_rect(colour="black",
+          fill="white", linewidth=1)) + theme(axis.text.x = element_text(vjust = 1, hjust = 0.5, angle = ))
+BGbiomass
+
+ggsave("../figures/PSM_BGbiomass.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=900, limitsize=TRUE)
+```
+
+```{r plot root:shoot ratio, echo=TRUE}
+# ROOT:SHOOT RATIO
+
+qqPlot(biomass$root_to_shoot) # non-linear
+
+shapiro.test(biomass$root_to_shoot) # W = 0.93772, p-value = 0.0161 interpretation: ratio not normally distributed
+
+group <- interaction(biomass$Microbe_TRT, biomass$Water_TRT)
+summary(group)
+
+kruskal.test(root_to_shoot ~ group, data = biomass)
+# Kruskal-Wallis chi-squared = 2.6513, df = 5, p-value = 0.7536 NS
+
+p <- ggplot(biomass, aes(x=Water_TRT,y=root_to_shoot, color=Water_TRT)) + 
+  geom_boxplot() +
+  geom_point(aes(color=Water_TRT), size=2, position = position_jitterdodge())+ 
+  scale_color_manual(name="Treatment", 
+                     values=c("#004AAD", "#FFBD59")) 
+
+p1=p+facet_wrap(~Microbe_TRT)+facet_grid(. ~Microbe_TRT, labeller = labeller(Microbe_TRT=micro.labs))
+
+
+
+root_shoot <-p1 + theme_bw() + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
+          =element_line(colour = "black")) + 
+    theme(axis.title=element_text(vjust=1,size=12,face="bold"),
+          axis.text=element_text(size=12), axis.text.x = element_text(vjust=1, hjust=1, 
+          size=12), panel.border = element_rect(colour = "black",linewidth=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Treatment", y = "Root-to-Shoot Ratio (wt:wt)") + 
+    theme(strip.text.x = element_text(size=12, face="bold"), strip.text.y =   
+          element_text(size=12, face="bold"), strip.background = element_rect(colour="black",
+          fill="white", linewidth=1)) + theme(axis.text.x = element_text(vjust = 1, hjust = 0.5, angle = ))
+root_shoot
+
+ggsave("../figures/PSM_ShootRoot.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=900, limitsize=TRUE)
+
+```
+
+```{r plot change in height, echo=TRUE}
+# HEIGHT START - END
+
+qqPlot(biomass$Change_height_mm) # non-linear
+
+shapiro.test(biomass$Change_height_mm) # W = 0.90564, p-value = 0.00163 interpretation: biomass is not normally distributed
+
+group <- interaction(biomass$Microbe_TRT, biomass$Water_TRT)
+summary(group)
+
+kruskal.test(Change_height_mm ~ group, data = biomass)
+# Kruskal-Wallis chi-squared = 3.5399, df = 5, p-value = 0.6174 NS
+
+p <- ggplot(biomass, aes(x=Water_TRT,y=Change_height_mm, color=Water_TRT)) + 
+  geom_boxplot() +
+  geom_point(aes(color=Water_TRT), size=2, position = position_jitterdodge())+ 
+  scale_color_manual(name="Treatment", 
+                     values=c("#004AAD", "#FFBD59")) 
+
+p1=p+facet_wrap(~Microbe_TRT)+facet_grid(. ~Microbe_TRT, labeller = labeller(Microbe_TRT=micro.labs))
+
+Change_height <-p1 + theme_bw() + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
+          =element_line(colour = "black")) + 
+    theme(axis.title=element_text(vjust=1,size=12,face="bold"),
+          axis.text=element_text(size=12), axis.text.x = element_text(vjust=1, hjust=1, 
+          size=12), panel.border = element_rect(colour = "black",linewidth=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Treatment", y = "Change in Plant Height (mm)") + 
+    theme(strip.text.x = element_text(size=12, face="bold"), strip.text.y =   
+          element_text(size=12, face="bold"), strip.background = element_rect(colour="black",
+          fill="white", linewidth=1)) + theme(axis.text.x = element_text(vjust = 1, hjust = 0.5, angle = ))
+Change_height
+
+ggsave("../figures/Change_height.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=900, limitsize=TRUE)
+```
+
+```{r combine plots, echo=TRUE}
+library(ggplot2)
+library(patchwork)
+
+# change labels
+p1 <- Change_height
+p2 <- AGbiomass
+p3 <- BGbiomass
+p4 <- root_shoot
+
+# Remove x-axis text/ticks from top row
+p1 <- p1 + theme(axis.title.x = element_blank(),
+                 axis.text.x = element_blank(),
+                 axis.ticks.x = element_blank())
+p2 <- p2 + theme(axis.title.x = element_blank(),
+                 axis.text.x = element_blank(),
+                 axis.ticks.x = element_blank())
+
+# Combine plots in 2x2 layout
+combined <- (p1 | p2) / (p3 | p4) +
+  plot_layout(guides = "collect") &  # merge legends
+  theme(legend.position = "bottom")  # place shared legend at bottom
+
+# Add subplot labels (A, B, C, D)
+combined <- combined + plot_annotation(tag_levels = "A")
+
+# Add a single x-axis label for the entire bottom row
+# Trick: add empty annotation at bottom center using patchwork
+combined <- combined & theme(plot.tag.position = c(0, 1))  # optional adjustment of tags
+
+# Display
+combined_gr <-combined + plot_annotation(
+  title = NULL,
+  caption = NULL,
+  theme = theme(plot.margin = margin(5, 5, 30, 5))  # add space for x-axis
+)  # optional, or just add xlab to bottom plots
+
+
+
+ggsave("../figures/combined_plant.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=12, height=7, dpi=900, limitsize=TRUE)
+```
+
+```{r stem_ct, echo=TRUE}
+# STEM COUNT - END only
+
+qqPlot(biomass$Stem_ct_end) # non-linear
+
+shapiro.test(biomass$Stem_ct_end) # W = 0.90564, p-value = 0.00163 interpretation: biomass is not normally distributed
+
+group <- interaction(biomass$Microbe_TRT, biomass$Water_TRT)
+summary(group)
+
+kruskal.test(Stem_ct_end ~ group, data = biomass)
+# Kruskal-Wallis chi-squared = 3.8649, df = 5, p-value = 0.569 NS
+```
