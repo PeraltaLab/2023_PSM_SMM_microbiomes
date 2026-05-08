@@ -4,9 +4,9 @@ This repository contains open-source code, data, & text files.
 
 Raw amplicon sequence files can be found at NCBI SRA [BioProject ID PRJNA1172654](https://www.ncbi.nlm.nih.gov/bioproject/1172654)
 
-## Manuscript pre-print
+## Manuscript
 
-For information regarding the project, please visit: Davis, K. A., McKinney, M. M. S., Gittman, R. K., & Peralta, A. L. (2024). Evaluating Plant-Microbe Associations in Response to Environmental Stressors to Enhance Salt Marsh Restoration. bioRxiv, 2024-10. [https://doi.org/10.1101/2024.10.14.618360](https://doi.org/10.1101/2024.10.14.618360)
+For information regarding the project, please visit: Davis, K. A., McKinney, M. M. S., Gittman, R. K., & Peralta, A. L. (2026). Evaluating Plant-Microbe Associations in Response to Environmental Stressors to Enhance Salt Marsh Restoration. Estuaries and Coasts. [https://doi.org/10.1007/s12237-026-01730-5](https://doi.org/10.1007/s12237-026-01730-5)
 
 ## We address the following aim:
 
@@ -29,7 +29,7 @@ For information regarding the project, please visit: Davis, K. A., McKinney, M. 
 This work was supported by the National Science Foundation grant #1845845 and #2009185 to A.L.P..
 
 ## Contributors
-[Dr. Ariane Peralta](mailto:peraltaa@ecu.edu) [(website)](http://www.peraltalab.com): Associate Professor, Department of Biology, East Carolina University
+[Dr. Ariane Peralta](mailto:peraltaa@ecu.edu) [(website)](http://www.peraltalab.com): Professor, Department of Biology, East Carolina University
 
 [Kai A. Davis](mailto:kaidavis34@gmail.com) [(website)](linkedin.com/in/kaiadavis): Research Technician, Undergraduate Researcher, Department of Biology, East Carolina University
 
