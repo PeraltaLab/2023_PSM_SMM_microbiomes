@@ -2,6 +2,8 @@
 
 This repository contains open-source code, data, & text files.
 
+[![DOI](https://zenodo.org/badge/872436744.svg)](https://doi.org/10.5281/zenodo.20090255)
+
 Raw amplicon sequence files can be found at NCBI SRA [BioProject ID PRJNA1172654](https://www.ncbi.nlm.nih.gov/bioproject/1172654)
 
 ## Manuscript
